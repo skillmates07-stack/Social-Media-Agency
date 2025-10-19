@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agency {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  subdomain     String?  @unique
+  logo          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  users         User[]
+  posts         Post[]
+  socialAccounts SocialAccount[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("member")
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+  createdAt DateTime @default(now())
+  posts     Post[]
+}
+
+model SocialAccount {
+  id           String   @id @default(cuid())
+  platform     String   // 'facebook', 'instagram', 'twitter', etc.
+  accountId    String
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  agencyId     String
+  agency       Agency   @relation(fields: [agencyId], references: [id])
+  createdAt    DateTime @default(now())
+  
+  @@unique([platform, accountId])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String
+  imageUrl    String?
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status      String   @default("draft") // 'draft', 'scheduled', 'published', 'failed'
+  platforms   String[] // ['facebook', 'instagram']
+  agencyId    String
+  agency      Agency   @relation(fields: [agencyId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
