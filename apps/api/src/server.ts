@@ -3,7 +3,6 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import dotenv from 'dotenv';
 import { authRoutes } from './routes/auth.routes';
-import { authenticate } from './middleware/auth.middleware';
 
 dotenv.config();
 
@@ -17,9 +16,6 @@ server.register(cors, {
 server.register(jwt, {
   secret: process.env.JWT_SECRET || 'your-secret-key-change-this'
 });
-
-// Decorate with auth middleware
-server.decorate('authenticate', authenticate);
 
 // Health check
 server.get('/health', async () => {
