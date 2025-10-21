@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { authController } from '../controllers/auth.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 export async function authRoutes(fastify: FastifyInstance) {
   // Register new agency
@@ -8,16 +9,16 @@ export async function authRoutes(fastify: FastifyInstance) {
   // Login
   fastify.post('/login', authController.login);
   
-  // Get current user (protected)
+  // Get current user (protected) - use authenticate directly
   fastify.get('/me', {
-    preHandler: [fastify.authenticate]
+    preHandler: [authenticate]
   }, authController.getCurrentUser);
   
   // Refresh token
   fastify.post('/refresh', authController.refreshToken);
   
-  // Logout
+  // Logout (protected)
   fastify.post('/logout', {
-    preHandler: [fastify.authenticate]
+    preHandler: [authenticate]
   }, authController.logout);
 }
