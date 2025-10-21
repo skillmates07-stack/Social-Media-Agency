@@ -2,12 +2,12 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import dotenv from 'dotenv';
+import { authRoutes } from './routes/auth.routes';
+import { authenticate } from './middleware/auth.middleware';
 
 dotenv.config();
 
-const server = Fastify({
-  logger: true
-});
+const server = Fastify({ logger: true });
 
 // Register plugins
 server.register(cors, {
@@ -18,14 +18,16 @@ server.register(jwt, {
   secret: process.env.JWT_SECRET || 'your-secret-key-change-this'
 });
 
+// Decorate with auth middleware
+server.decorate('authenticate', authenticate);
+
 // Health check
 server.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
 });
 
-// Import routes (we'll create these next)
-// server.register(authRoutes, { prefix: '/api/auth' });
-// server.register(postsRoutes, { prefix: '/api/posts' });
+// Register routes
+server.register(authRoutes, { prefix: '/api/auth' });
 
 const start = async () => {
   try {
