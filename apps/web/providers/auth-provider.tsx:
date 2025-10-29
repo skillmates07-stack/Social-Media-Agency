@@ -1,0 +1,89 @@
+'use client';
+
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authApi } from '@/lib/api-client';
+
+interface Agency {
+  id: string;
+  email: string;
+  name: string;
+  subdomain?: string;
+  logo?: string;
+}
+
+interface AuthContextType {
+  agency: Agency | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: any) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [agency, setAgency] = useState<Agency | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  // Check if user is authenticated on mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await authApi.getCurrentUser();
+      setAgency(response.data.agency);
+    } catch (error) {
+      localStorage.removeItem('token');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    const response = await authApi.login({ email, password });
+    const { token, agency } = response.data;
+    
+    localStorage.setItem('token', token);
+    setAgency(agency);
+    router.push('/dashboard');
+  };
+
+  const register = async (data: any) => {
+    const response = await authApi.register(data);
+    const { token, agency } = response.data;
+    
+    localStorage.setItem('token', token);
+    setAgency(agency);
+    router.push('/dashboard');
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setAgency(null);
+    router.push('/login');
+  };
+
+  return (
+    <AuthContext.Provider value={{ agency, isLoading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
