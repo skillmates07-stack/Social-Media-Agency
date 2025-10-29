@@ -1,76 +1,104 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/auth-store';
+import { useAuth } from '@/providers/auth-provider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const router = useRouter();
-  const { login, isLoading } = useAuthStore();
-  
+  const { login } = useAuth();
+  const { toast } = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
+    setIsLoading(true);
+
     try {
       await login(email, password);
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      toast({
+        title: 'Welcome back!',
+        description: 'You have successfully logged in.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Login failed',
+        description: error.response?.data?.error || 'Invalid credentials',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-  
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <h2 className="text-3xl font-bold text-center">Sign In</h2>
-        
-        {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded">
-            {error}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+          <CardDescription>
+            Enter your credentials to access your dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-sm text-muted-foreground hover:text-primary"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <Link href="/register" className="text-primary hover:underline font-medium">
+              Sign up
+            </Link>
           </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isLoading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
