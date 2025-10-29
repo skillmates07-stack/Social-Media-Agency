@@ -8,13 +8,13 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   typescript: {
-    // ⚠️ Only during development - remove this in production
     ignoreBuildErrors: true,
   },
   eslint: {
-    // ⚠️ Only during development - remove this in production
     ignoreDuringBuilds: true,
   },
+  // Force all pages to be dynamic (no static generation)
+  output: 'standalone',
 }
 
 module.exports = nextConfig
