@@ -1,64 +1,139 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// This file is for Fastify backend with PostgreSQL
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User/Agency
 model Agency {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  password      String
-  subdomain     String?  @unique
-  logo          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  users         User[]
-  posts         Post[]
-  socialAccounts SocialAccount[]
-}
-
-model User {
   id        String   @id @default(cuid())
-  email     String   @unique
   name      String
-  role      String   @default("member")
-  agencyId  String
-  agency    Agency   @relation(fields: [agencyId], references: [id])
-  createdAt DateTime @default(now())
-  posts     Post[]
-}
-
-model SocialAccount {
-  id           String   @id @default(cuid())
-  platform     String   // 'facebook', 'instagram', 'twitter', etc.
-  accountId    String
-  accessToken  String
-  refreshToken String?
-  expiresAt    DateTime?
-  agencyId     String
-  agency       Agency   @relation(fields: [agencyId], references: [id])
-  createdAt    DateTime @default(now())
+  email     String   @unique
+  password  String   // hashed
+  subdomain String?  @unique
   
-  @@unique([platform, accountId])
+  // Relations
+  posts           Post[]
+  socialAccounts  SocialAccount[]
+  teamMembers     TeamMember[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+// Posts
 model Post {
-  id          String   @id @default(cuid())
-  content     String
-  imageUrl    String?
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  media     String?  // JSON array of media URLs
+  
+  // Scheduling
   scheduledAt DateTime?
   publishedAt DateTime?
-  status      String   @default("draft") // 'draft', 'scheduled', 'published', 'failed'
-  platforms   String[] // ['facebook', 'instagram']
+  status    String   @default("draft") // draft, scheduled, published
+  
+  // Platforms
+  platforms String[] // ["facebook", "instagram", "twitter"]
+  
+  // Analytics
+  engagement   Int     @default(0)
+  impressions  Int     @default(0)
+  clicks       Int     @default(0)
+  
+  // Relations
   agencyId    String
-  agency      Agency   @relation(fields: [agencyId], references: [id])
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  socialPosts SocialPost[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([agencyId])
+  @@index([scheduledAt])
+}
+
+// Social Media Accounts
+model SocialAccount {
+  id        String   @id @default(cuid())
+  platform  String   // "facebook", "instagram", "twitter"
+  username  String
+  email     String?
+  
+  // OAuth tokens
+  accessToken  String
+  refreshToken String?
+  tokenExpiry  DateTime?
+  
+  // Profile info
+  profileUrl   String?
+  profileImage String?
+  followersCount Int @default(0)
+  
+  // Relations
+  agencyId    String
+  agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  socialPosts SocialPost[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([agencyId, platform, username])
+  @@index([agencyId])
+}
+
+// Social Posts (published on platforms)
+model SocialPost {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  socialAccountId String
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  
+  platformPostId String?  // ID from platform
+  platformUrl    String?
+  
+  status    String   @default("pending") // pending, published, failed
+  error     String?  // error message if failed
+  
+  publishedAt DateTime?
+  
+  @@unique([postId, socialAccountId])
+  @@index([postId])
+  @@index([socialAccountId])
+}
+
+// Team Members
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  role      String   @default("member") // owner, admin, member
+  
+  agencyId  String
+  agency    Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([agencyId, email])
+  @@index([agencyId])
+}
+
+// Refresh Tokens (for JWT rotation)
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  agencyId  String
+  expiresAt DateTime
+  
+  createdAt DateTime @default(now())
+  
+  @@index([agencyId])
 }
