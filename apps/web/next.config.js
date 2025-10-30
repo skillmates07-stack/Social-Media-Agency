@@ -10,13 +10,7 @@ const nextConfig = {
       },
     ],
   },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  },
-  // Force client-side rendering for auth pages
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
-  },
+  // DON'T hardcode here - let it use environment variables
 }
 
 module.exports = nextConfig
