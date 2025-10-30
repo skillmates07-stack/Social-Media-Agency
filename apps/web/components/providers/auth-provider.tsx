@@ -4,7 +4,11 @@ import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/auth-store';
 
-const publicRoutes = ['/login', '/register', '/forgot-password'];
+// Routes that DON'T require authentication
+const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/terms', '/privacy'];
+
+// Routes that REQUIRE authentication
+const protectedRoutes = ['/dashboard', '/posts', '/schedule', '/analytics', '/accounts', '/team', '/settings'];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,11 +21,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading) {
+      // Check if current route is protected
+      const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
       const isPublicRoute = publicRoutes.includes(pathname);
 
-      if (!isAuthenticated && !isPublicRoute) {
+      // If user is NOT authenticated and trying to access protected route
+      if (!isAuthenticated && isProtectedRoute) {
         router.push('/login');
-      } else if (isAuthenticated && isPublicRoute) {
+      }
+      
+      // If user IS authenticated and on login/register page, redirect to dashboard
+      if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
         router.push('/dashboard');
       }
     }
@@ -29,10 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="relative">
-          <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin" />
-          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-4 border-b-4 border-purple-500 animate-spin animation-delay-150" />
+          <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-primary animate-spin" />
         </div>
       </div>
     );
