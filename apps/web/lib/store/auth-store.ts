@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apiClient } from '../api-client';
 
 interface Agency {
   id: string;
@@ -15,14 +14,8 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   
-  // Actions
   login: (email: string, password: string) => Promise<void>;
-  register: (data: {
-    email: string;
-    password: string;
-    name: string;
-    subdomain?: string;
-  }) => Promise<void>;
+  register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
 }
@@ -36,89 +29,59 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (email: string, password: string) => {
         set({ isLoading: true });
-        try {
-          const data = await apiClient.login(email, password);
-          
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
-          
-          set({
-            agency: data.agency,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } catch (error) {
-          set({ isLoading: false });
-          throw error;
-        }
+        
+        // Mock login - remove this when backend is ready
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        const mockAgency = {
+          id: '1',
+          name: 'Demo Agency',
+          email: email,
+          createdAt: new Date().toISOString(),
+        };
+        
+        set({
+          agency: mockAgency,
+          isAuthenticated: true,
+          isLoading: false,
+        });
       },
 
       register: async (data) => {
         set({ isLoading: true });
-        try {
-          const response = await apiClient.register(data);
-          
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
-          
-          set({
-            agency: response.agency,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } catch (error) {
-          set({ isLoading: false });
-          throw error;
-        }
+        
+        // Mock register
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        const mockAgency = {
+          id: '1',
+          name: data.name,
+          email: data.email,
+          subdomain: data.subdomain,
+          createdAt: new Date().toISOString(),
+        };
+        
+        set({
+          agency: mockAgency,
+          isAuthenticated: true,
+          isLoading: false,
+        });
       },
 
       logout: async () => {
-        try {
-          await apiClient.logout();
-        } catch (error) {
-          console.error('Logout error:', error);
-        } finally {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          set({
-            agency: null,
-            isAuthenticated: false,
-          });
-        }
+        set({
+          agency: null,
+          isAuthenticated: false,
+        });
       },
 
       loadUser: async () => {
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          set({ isAuthenticated: false, isLoading: false });
-          return;
-        }
-
-        set({ isLoading: true });
-        try {
-          const data = await apiClient.getCurrentUser();
-          set({
-            agency: data.agency,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } catch (error) {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          set({
-            agency: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-        }
+        // Check if user exists in storage
+        set({ isLoading: false });
       },
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        agency: state.agency,
-        isAuthenticated: state.isAuthenticated,
-      }),
     }
   )
 );
