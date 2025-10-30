@@ -31,7 +31,7 @@ export function CTASection() {
             </p>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - FIXED */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link href="/register">
               <Button 
@@ -46,7 +46,7 @@ export function CTASection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 px-10 text-base font-semibold"
+                className="h-14 px-10 text-base font-semibold border-2 border-border hover:bg-background text-foreground"
               >
                 Sign in
               </Button>
