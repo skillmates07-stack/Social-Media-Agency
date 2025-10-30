@@ -13,14 +13,14 @@ const CreatePostSchema = z.object({
 });
 
 export async function postsRoutes(fastify: FastifyInstance) {
-  // Create post
-  fastify.post<{ Body: z.infer<typeof CreatePostSchema> }>(
+  fastify.post(
     '/',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const { agencyId } = request.user as any;
-        const data = CreatePostSchema.parse(request.body);
+        const user = request.user as any;
+        const body = request.body as unknown;
+        const data = CreatePostSchema.parse(body);
 
         const post = await prisma.post.create({
           data: {
@@ -29,7 +29,7 @@ export async function postsRoutes(fastify: FastifyInstance) {
             media: JSON.stringify(data.media || []),
             scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
             platforms: data.platforms,
-            agencyId,
+            agencyId: user.agencyId,
             status: data.scheduledAt ? 'scheduled' : 'draft',
           },
         });
@@ -37,23 +37,22 @@ export async function postsRoutes(fastify: FastifyInstance) {
         return reply.status(201).send(post);
       } catch (error: any) {
         if (error instanceof z.ZodError) {
-          return reply.status(400).send({ error: 'Invalid input', details: error.errors });
+          return reply.status(400).send({ error: 'Invalid input' });
         }
         return reply.status(500).send({ error: 'Failed to create post' });
       }
     }
   );
 
-  // Get posts
   fastify.get(
     '/',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const { agencyId } = request.user as any;
+        const user = request.user as any;
 
         const posts = await prisma.post.findMany({
-          where: { agencyId },
+          where: { agencyId: user.agencyId },
           orderBy: { createdAt: 'desc' },
         });
 
@@ -64,20 +63,19 @@ export async function postsRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // Get single post
-  fastify.get<{ Params: { id: string } }>(
+  fastify.get(
     '/:id',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const { agencyId } = request.user as any;
-        const { id } = request.params;
+        const user = request.user as any;
+        const params = request.params as any;
 
         const post = await prisma.post.findUnique({
-          where: { id },
+          where: { id: params.id },
         });
 
-        if (!post || post.agencyId !== agencyId) {
+        if (!post || post.agencyId !== user.agencyId) {
           return reply.status(404).send({ error: 'Post not found' });
         }
 
@@ -88,23 +86,23 @@ export async function postsRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // Update post
-  fastify.put<{ Params: { id: string }; Body: Partial<z.infer<typeof CreatePostSchema>> }>(
+  fastify.put(
     '/:id',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const { agencyId } = request.user as any;
-        const { id } = request.params;
+        const user = request.user as any;
+        const params = request.params as any;
+        const body = request.body as any;
 
-        const post = await prisma.post.findUnique({ where: { id } });
-        if (!post || post.agencyId !== agencyId) {
+        const post = await prisma.post.findUnique({ where: { id: params.id } });
+        if (!post || post.agencyId !== user.agencyId) {
           return reply.status(404).send({ error: 'Post not found' });
         }
 
         const updated = await prisma.post.update({
-          where: { id },
-          data: request.body,
+          where: { id: params.id },
+          data: body,
         });
 
         return reply.send(updated);
@@ -114,21 +112,20 @@ export async function postsRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // Delete post
-  fastify.delete<{ Params: { id: string } }>(
+  fastify.delete(
     '/:id',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const { agencyId } = request.user as any;
-        const { id } = request.params;
+        const user = request.user as any;
+        const params = request.params as any;
 
-        const post = await prisma.post.findUnique({ where: { id } });
-        if (!post || post.agencyId !== agencyId) {
+        const post = await prisma.post.findUnique({ where: { id: params.id } });
+        if (!post || post.agencyId !== user.agencyId) {
           return reply.status(404).send({ error: 'Post not found' });
         }
 
-        await prisma.post.delete({ where: { id } });
+        await prisma.post.delete({ where: { id: params.id } });
         return reply.send({ message: 'Post deleted' });
       } catch (error) {
         return reply.status(500).send({ error: 'Failed to delete post' });
