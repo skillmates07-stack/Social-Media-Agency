@@ -1,27 +1,37 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
+import helmet from '@fastify/helmet';
 import dotenv from 'dotenv';
 import { authRoutes } from './routes/auth.routes';
+import { postsRoutes } from './routes/posts.routes';
+import { socialRoutes } from './routes/social.routes';
 
 dotenv.config();
 
 const server = Fastify({ logger: true });
 
-// ✅ FIXED CORS - Allow Netlify
+// Security
+server.register(helmet, {
+  crossOriginResourcePolicy: false,
+});
+
+// CORS
 server.register(cors, {
   origin: [
     'http://localhost:3000',
     'https://postipilot.netlify.app',
-    /https:\/\/.*--postipilot\.netlify\.app$/, // All Netlify preview URLs
+    /https:\/\/.*--postipilot\.netlify\.app$/,
     process.env.FRONTEND_URL || 'http://localhost:3000'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 });
 
+// JWT
 server.register(jwt, {
-  secret: process.env.JWT_SECRET || 'your-secret-key-change-this'
+  secret: process.env.JWT_SECRET || 'your-secret-key-change-this',
+  sign: { expiresIn: '24h' }
 });
 
 // Health check
@@ -29,8 +39,10 @@ server.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
 });
 
-// Register routes
+// Routes
 server.register(authRoutes, { prefix: '/api/auth' });
+server.register(postsRoutes, { prefix: '/api/posts' });
+server.register(socialRoutes, { prefix: '/api/social' });
 
 const start = async () => {
   try {
@@ -44,3 +56,5 @@ const start = async () => {
 };
 
 start();
+
+export default server;
