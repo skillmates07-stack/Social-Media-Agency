@@ -7,7 +7,7 @@ import { ArrowRight, Sparkles, Check } from 'lucide-react';
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-20">
+    <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden bg-background pt-20 pb-16">
       {/* Subtle accent in top corner */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
 
@@ -63,7 +63,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 text-base font-semibold border-border hover:bg-secondary"
+                className="h-12 px-8 text-base font-semibold border-2 border-border hover:bg-secondary text-foreground"
               >
                 Sign in
               </Button>
@@ -75,7 +75,7 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-6"
+            className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-4"
           >
             <div className="flex items-center gap-2">
               <Check className="h-4 w-4 text-green-600" />
@@ -91,22 +91,22 @@ export function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats - MOVED UP */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16 border-t border-border mt-16"
+            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-12"
           >
-            <div className="text-center pt-8">
+            <div className="text-center">
               <div className="text-4xl font-bold text-foreground mb-1">10K+</div>
               <div className="text-sm text-muted-foreground">Posts scheduled</div>
             </div>
-            <div className="text-center pt-8">
+            <div className="text-center">
               <div className="text-4xl font-bold text-foreground mb-1">500+</div>
               <div className="text-sm text-muted-foreground">Agencies</div>
             </div>
-            <div className="text-center pt-8">
+            <div className="text-center">
               <div className="text-4xl font-bold text-foreground mb-1">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
             </div>
