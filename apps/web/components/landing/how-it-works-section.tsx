@@ -26,7 +26,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-32 relative bg-secondary/30">
+    <section id="how-it-works" className="py-24 relative bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <motion.div
@@ -45,7 +45,7 @@ export function HowItWorksSection() {
         </motion.div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
@@ -57,21 +57,15 @@ export function HowItWorksSection() {
                 viewport={{ once: true }}
                 className="relative"
               >
-                {/* Connection line (desktop only) */}
-                {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 left-full w-full h-px bg-gradient-to-r from-border to-transparent -translate-x-1/2" />
-                )}
-
-                {/* Card */}
                 <div className="relative">
                   {/* Icon container */}
-                  <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
-                    <Icon className="w-8 h-8 text-primary" />
+                  <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground mb-6">
+                    <Icon className="w-7 h-7" />
                   </div>
 
                   {/* Step number */}
-                  <div className="text-sm font-mono text-muted-foreground mb-3">
-                    {step.number}
+                  <div className="text-xs font-mono text-muted-foreground/60 mb-3 uppercase tracking-wider">
+                    Step {step.number}
                   </div>
 
                   {/* Content */}
