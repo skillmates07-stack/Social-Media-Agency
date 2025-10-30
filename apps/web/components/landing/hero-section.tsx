@@ -4,33 +4,29 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles, Check } from 'lucide-react';
-import Image from 'next/image';
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 pb-32">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-secondary/20" />
-      
-      {/* Subtle grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-20">
+      {/* Subtle accent in top corner */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-8 max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center space-y-8">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-sm"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-secondary/50 text-sm"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="text-foreground font-medium">
+            <span className="text-foreground/80 font-medium">
               Trusted by 500+ agencies worldwide
             </span>
           </motion.div>
 
-          {/* Main heading */}
+          {/* Main Heading */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -40,21 +36,13 @@ export function HeroSection() {
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground tracking-tight leading-[1.1]">
               Social media management
               <br />
-              <span className="relative inline-block">
-                <span className="relative z-10 bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  built for scale
-                </span>
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.8, delay: 0.5 }}
-                  className="absolute bottom-2 left-0 right-0 h-3 bg-primary/20 -z-0 origin-left"
-                />
+              <span className="bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                built for scale
               </span>
             </h1>
 
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Schedule posts, analyze performance, and collaborate with your team across all social platforms. Everything you need in one powerful dashboard.
+              Schedule posts, analyze performance, and collaborate with your team across all social platforms from one powerful dashboard.
             </p>
           </motion.div>
 
@@ -66,7 +54,7 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Link href="/register">
-              <Button size="lg" className="h-12 px-8 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 shadow-lg group">
+              <Button size="lg" className="h-12 px-8 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 group">
                 Start free trial
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -75,7 +63,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 text-base font-semibold"
+                className="h-12 px-8 text-base font-semibold border-border hover:bg-secondary"
               >
                 Sign in
               </Button>
@@ -108,55 +96,19 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16"
+            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-16 border-t border-border mt-16"
           >
-            <div className="text-center">
+            <div className="text-center pt-8">
               <div className="text-4xl font-bold text-foreground mb-1">10K+</div>
               <div className="text-sm text-muted-foreground">Posts scheduled</div>
             </div>
-            <div className="text-center">
+            <div className="text-center pt-8">
               <div className="text-4xl font-bold text-foreground mb-1">500+</div>
               <div className="text-sm text-muted-foreground">Agencies</div>
             </div>
-            <div className="text-center">
+            <div className="text-center pt-8">
               <div className="text-4xl font-bold text-foreground mb-1">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
-            </div>
-          </motion.div>
-
-          {/* Dashboard preview mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-20"
-          >
-            <div className="relative rounded-xl border border-border bg-background/50 backdrop-blur-sm shadow-2xl overflow-hidden">
-              {/* Browser chrome */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-secondary/50">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="px-4 py-1 rounded-md bg-secondary text-xs text-muted-foreground">
-                    app.socialhub.com/dashboard
-                  </div>
-                </div>
-              </div>
-              
-              {/* Dashboard preview placeholder */}
-              <div className="aspect-video bg-gradient-to-br from-primary/5 via-purple-500/5 to-background p-8">
-                <div className="w-full h-full rounded-lg border border-border bg-background/50 backdrop-blur-sm flex items-center justify-center">
-                  <div className="text-center space-y-3">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10">
-                      <Sparkles className="w-8 h-8 text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">Your dashboard preview</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
