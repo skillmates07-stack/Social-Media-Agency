@@ -7,7 +7,11 @@ import { authRoutes } from './routes/auth.routes';
 import { postsRoutes } from './routes/posts.routes';
 import { socialRoutes } from './routes/social.routes';
 
+// @ts-ignore
+const process = global.process;
+
 dotenv.config();
+
 
 const server = Fastify({ logger: true });
 
@@ -58,3 +62,4 @@ const start = async () => {
 start();
 
 export default server;
+
