@@ -3,10 +3,6 @@
   command = "npm run build"
   publish = ".next"
 
-# Ignore backend changes
-[build.ignore]
-  command = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- apps/api/ apps/api/**/*"
-
 [context.production]
   command = "npm run build"
 
