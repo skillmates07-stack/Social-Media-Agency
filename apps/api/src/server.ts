@@ -3,9 +3,9 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import helmet from '@fastify/helmet';
 import * as dotenv from 'dotenv';
-import { authRoutes } from './routes/auth.routes';
-import { postsRoutes } from './routes/posts.routes';
-import { socialRoutes } from './routes/social.routes';
+import { authRoutes } from './routes/auth.routes.js';
+import { postsRoutes } from './routes/posts.routes.js';
+import { socialRoutes } from './routes/social.routes.js';
 
 // @ts-ignore
 const process = global.process;
@@ -64,4 +64,3 @@ const start = async () => {
 start();
 
 export default server;
-
