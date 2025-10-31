@@ -1,2 +1,5 @@
 apps/api
-packages/shared
+packages
+*.md
+.git
+node_modules
