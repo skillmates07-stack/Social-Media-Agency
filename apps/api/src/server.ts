@@ -2,16 +2,17 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import helmet from '@fastify/helmet';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import { authRoutes } from './routes/auth.routes';
 import { postsRoutes } from './routes/posts.routes';
 import { socialRoutes } from './routes/social.routes';
 
 // @ts-ignore
 const process = global.process;
+// @ts-ignore
+const console = global.console;
 
 dotenv.config();
-
 
 const server = Fastify({ logger: true });
 
@@ -53,8 +54,8 @@ const start = async () => {
     const port = Number(process.env.PORT) || 4000;
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`🚀 Server running on port ${port}`);
-  } catch (err) {
-    server.log.error(err);
+  } catch (err: any) {
+    server.log.error(err.message || err);
     process.exit(1);
   }
 };
@@ -62,4 +63,3 @@ const start = async () => {
 start();
 
 export default server;
-
