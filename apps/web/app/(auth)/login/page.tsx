@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Loader, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { Mail, Lock, Loader, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,189 +41,149 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (err) {
       setError('Network error. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Animated Background */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <div className="border-b border-gray-200 px-6 py-4">
+        <Link href="/" className="flex items-center gap-2 w-fit hover:opacity-80 transition-opacity">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">S</span>
+          </div>
+          <span className="text-xl font-bold text-gray-900">SocialHub</span>
+        </Link>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="text-center mb-8 animate-fade-in">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="text-white" size={24} />
-              </div>
-              <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                SocialHub
-              </h1>
-            </div>
-            <p className="text-gray-400 text-sm font-medium">Manage all your social media in one place</p>
+          {/* Heading */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+            <p className="text-gray-600">Sign in to your SocialHub account</p>
           </div>
 
-          {/* Form Card */}
-          <form onSubmit={handleSubmit} className="bg-gradient-to-b from-slate-800/80 to-slate-900/80 rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-slate-700/50 animate-fade-in-up">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
-                <p className="text-gray-400 text-sm mt-1">Sign in to your account</p>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+                <span className="mt-0.5">⚠️</span>
+                <span>{error}</span>
               </div>
+            )}
 
-              {/* Error Message */}
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm animate-shake">
-                  ⚠️ {error}
-                </div>
-              )}
-
-              {/* Email Field */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300">Email Address</label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={20} />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 backdrop-blur"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label className="block text-sm font-medium text-gray-300">Password</label>
-                  <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
-                    Forgot?
-                  </Link>
-                </div>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={20} />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 backdrop-blur"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-3.5 text-gray-500 hover:text-indigo-400 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/50"
-              >
-                {loading ? (
-                  <>
-                    <Loader size={20} className="animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-600"></div>
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="px-3 bg-slate-900/50 text-gray-400 text-xs font-medium">
-                    New to SocialHub?
-                  </span>
-                </div>
-              </div>
-
-              {/* Sign Up Link */}
-              <Link
-                href="/register"
-                className="w-full py-3 border border-slate-600 text-gray-300 rounded-lg font-medium hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all duration-300 text-center backdrop-blur"
-              >
-                Create Account
-              </Link>
+            {/* Email Field */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="name@company.com"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                required
+              />
             </div>
+
+            {/* Password Field */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-900">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  Forgot?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 mt-6"
+            >
+              {loading ? (
+                <>
+                  <Loader size={18} className="animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign in
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-2 bg-white text-sm text-gray-600">
+                  New to SocialHub?
+                </span>
+              </div>
+            </div>
+
+            {/* Sign Up Link */}
+            <Link
+              href="/register"
+              className="w-full py-2.5 border border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-center"
+            >
+              Create account
+            </Link>
           </form>
 
-          {/* Footer */}
-          <div className="text-center mt-8 text-gray-400 text-xs space-y-2">
-            <p>🔒 Protected by industry-standard encryption</p>
-            <p className="text-gray-500">© 2025 SocialHub. All rights reserved.</p>
-          </div>
+          {/* Footer Text */}
+          <p className="text-center text-sm text-gray-600 mt-6">
+            By signing in, you agree to our{' '}
+            <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+              Terms
+            </Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+              Privacy Policy
+            </Link>
+          </p>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out;
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out 0.2s backwards;
-        }
-        .animate-shake {
-          animation: shake 0.5s ease-in-out;
-        }
-      `}</style>
+      {/* Footer */}
+      <div className="border-t border-gray-200 px-6 py-4 text-center text-sm text-gray-600">
+        © 2025 SocialHub. All rights reserved.
+      </div>
     </div>
   );
 }
