@@ -3,11 +3,9 @@
   command = "npm run build"
   publish = ".next"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[cache]
-  command = "node_modules"
+# Ignore backend changes
+[build.ignore]
+  command = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- apps/api/ apps/api/**/*"
 
 [context.production]
   command = "npm run build"
