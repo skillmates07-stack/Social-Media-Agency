@@ -13,17 +13,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const containerRef = useRef(null);
-  const inputRefs = useRef([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
   // GSAP Animations
   useEffect(() => {
+    if (!containerRef.current) return;
     const ctx = gsap.context(() => {
       gsap.to('.gradient-bg', {
         backgroundPosition: ['0% 0%', '100% 100%'],
@@ -42,7 +39,7 @@ export default function RegisterPage() {
     return () => ctx.revert();
   }, []);
 
-  // Password strength calculator
+  // Calculate password strength
   const calculateStrength = (pwd: string) => {
     let strength = 0;
     if (pwd.length >= 8) strength++;
@@ -53,15 +50,20 @@ export default function RegisterPage() {
   };
 
   const handleInputFocus = (index: number) => {
-    gsap.to(inputRefs.current[index], { boxShadow: '0 0 20px rgba(99, 102, 241, 0.5)', duration: 0.3 });
+    if (inputRefs.current[index]) {
+      gsap.to(inputRefs.current[index], { boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)', duration: 0.3 });
+    }
   };
 
   const handleInputBlur = (index: number) => {
-    gsap.to(inputRefs.current[index], { boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', duration: 0.3 });
+    if (inputRefs.current[index]) {
+      gsap.to(inputRefs.current[index], { boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', duration: 0.3 });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!termsAccepted) {
       setError('Please accept the terms and conditions');
       return;
@@ -83,6 +85,7 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         setError(data.error || 'Registration failed');
+        gsap.to('.submit-button', { scale: 1, duration: 0.2 });
         return;
       }
 
@@ -97,9 +100,9 @@ export default function RegisterPage() {
       });
     } catch (err) {
       setError('Network error. Please try again.');
+      gsap.to('.submit-button', { scale: 1, duration: 0.2 });
     } finally {
       setLoading(false);
-      gsap.to('.submit-button', { scale: 1, duration: 0.2 });
     }
   };
 
@@ -111,20 +114,38 @@ export default function RegisterPage() {
     return 'bg-green-500';
   };
 
+  const getStrengthText = () => {
+    if (passwordStrength === 0) return 'Very weak';
+    if (passwordStrength === 1) return 'Weak';
+    if (passwordStrength === 2) return 'Fair';
+    if (passwordStrength === 3) return 'Good';
+    return 'Strong';
+  };
+
   return (
     <div ref={containerRef} className="relative min-h-screen overflow-hidden">
+      {/* Animated Gradient Background */}
       <div className="gradient-bg absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
 
       {/* Floating Particles */}
       <div className="absolute inset-0">
         {[...Array(20)].map((_, i) => (
-          <div key={i} className="absolute w-2 h-2 bg-purple-400 rounded-full opacity-20" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animation: `float ${5 + Math.random() * 10}s ease-in-out infinite` }} />
+          <div
+            key={i}
+            className="absolute w-2 h-2 bg-purple-400 rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${5 + Math.random() * 10}s ease-in-out infinite`,
+            }}
+          />
         ))}
       </div>
 
+      {/* Content Container */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md">
-          {/* Logo */}
+          {/* Logo & Header */}
           <div className="text-center mb-8">
             <div className="logo-text flex items-center justify-center gap-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
@@ -137,36 +158,62 @@ export default function RegisterPage() {
             <p className="text-gray-400 text-sm font-medium">Join millions of creators</p>
           </div>
 
-          {/* Form */}
+          {/* Form Card */}
           <form onSubmit={handleSubmit}>
             <div className="form-card relative bg-gradient-to-b from-slate-800/50 to-slate-900/50 rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-slate-700/50">
               <div className="relative z-10 space-y-6">
+                {/* Header */}
                 <div>
                   <h2 className="text-2xl font-bold text-white">Create Account</h2>
                   <p className="text-gray-400 text-sm mt-1">Start managing your social media today</p>
                 </div>
 
+                {/* Error Message */}
                 {error && (
                   <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
                     {error}
                   </div>
                 )}
 
-                {/* Name Field */}
+                {/* Full Name Field */}
                 <div className="form-input space-y-2">
                   <label className="block text-sm font-medium text-gray-300">Full Name</label>
                   <div className="relative">
                     <User className="absolute left-4 top-3.5 text-gray-500" size={20} />
-                    <input ref={(el) => { if (el) inputRefs.current[0] = el; }} type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} onFocus={() => handleInputFocus(0)} onBlur={() => handleInputBlur(0)} placeholder="John Doe" className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur" required />
+                    <input
+                      ref={(el) => {
+                        inputRefs.current[0] = el;
+                      }}
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onFocus={() => handleInputFocus(0)}
+                      onBlur={() => handleInputBlur(0)}
+                      placeholder="John Doe"
+                      className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur"
+                      required
+                    />
                   </div>
                 </div>
 
                 {/* Email Field */}
                 <div className="form-input space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">Email</label>
+                  <label className="block text-sm font-medium text-gray-300">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-3.5 text-gray-500" size={20} />
-                    <input ref={(el) => { if (el) inputRefs.current[1] = el; }} type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} onFocus={() => handleInputFocus(1)} onBlur={() => handleInputBlur(1)} placeholder="you@example.com" className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur" required />
+                    <input
+                      ref={(el) => {
+                        inputRefs.current[1] = el;
+                      }}
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onFocus={() => handleInputFocus(1)}
+                      onBlur={() => handleInputBlur(1)}
+                      placeholder="you@example.com"
+                      className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur"
+                      required
+                    />
                   </div>
                 </div>
 
@@ -175,34 +222,66 @@ export default function RegisterPage() {
                   <label className="block text-sm font-medium text-gray-300">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-3.5 text-gray-500" size={20} />
-                    <input ref={(el) => { if (el) inputRefs.current[2] = el; }} type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => { setFormData({ ...formData, password: e.target.value }); calculateStrength(e.target.value); }} onFocus={() => handleInputFocus(2)} onBlur={() => handleInputBlur(2)} placeholder="••••••••" className="w-full pl-12 pr-12 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur" required />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3.5 text-gray-500 hover:text-purple-400 transition-colors">
+                    <input
+                      ref={(el) => {
+                        inputRefs.current[2] = el;
+                      }}
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => {
+                        setFormData({ ...formData, password: e.target.value });
+                        calculateStrength(e.target.value);
+                      }}
+                      onFocus={() => handleInputFocus(2)}
+                      onBlur={() => handleInputBlur(2)}
+                      placeholder="••••••••"
+                      className="w-full pl-12 pr-12 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all duration-300 backdrop-blur"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-3.5 text-gray-500 hover:text-purple-400 transition-colors"
+                    >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
 
-                  {/* Password Strength */}
+                  {/* Password Strength Indicator */}
                   {formData.password && (
                     <div className="space-y-2 mt-2">
                       <div className="flex gap-1">
                         {[...Array(4)].map((_, i) => (
-                          <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i < passwordStrength ? getStrengthColor() : 'bg-gray-600'}`} />
+                          <div
+                            key={i}
+                            className={`flex-1 h-1 rounded-full transition-all ${
+                              i < passwordStrength ? getStrengthColor() : 'bg-gray-600'
+                            }`}
+                          />
                         ))}
                       </div>
                       <p className="text-xs text-gray-400">
-                        {passwordStrength === 0 && 'Very weak'}
-                        {passwordStrength === 1 && 'Weak'}
-                        {passwordStrength === 2 && 'Fair'}
-                        {passwordStrength === 3 && 'Good'}
-                        {passwordStrength === 4 && 'Strong'}
+                        Password strength: <span className={`font-semibold ${
+                          passwordStrength === 1 ? 'text-red-400' :
+                          passwordStrength === 2 ? 'text-yellow-400' :
+                          passwordStrength === 3 ? 'text-blue-400' :
+                          passwordStrength === 4 ? 'text-green-400' :
+                          'text-gray-400'
+                        }`}>{getStrengthText()}</span>
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Terms Checkbox */}
+                {/* Terms & Conditions */}
                 <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${termsAccepted ? 'border-purple-500 bg-purple-500' : 'border-slate-600 group-hover:border-purple-500'}`}>
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                      termsAccepted
+                        ? 'border-purple-500 bg-purple-500'
+                        : 'border-slate-600 group-hover:border-purple-500'
+                    }`}
+                  >
                     {termsAccepted && <CheckCircle size={16} className="text-white" />}
                   </div>
                   <span className="text-sm text-gray-300">
@@ -215,11 +294,20 @@ export default function RegisterPage() {
                       Privacy Policy
                     </Link>
                   </span>
-                  <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="hidden" />
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="hidden"
+                  />
                 </label>
 
                 {/* Submit Button */}
-                <button type="submit" disabled={loading || !termsAccepted} className="submit-button w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 group relative overflow-hidden">
+                <button
+                  type="submit"
+                  disabled={loading || !termsAccepted}
+                  className="submit-button w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden transition-all duration-300"
+                >
                   <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <span className="relative flex items-center justify-center gap-2">
                     {loading ? (
@@ -257,12 +345,22 @@ export default function RegisterPage() {
         </div>
       </div>
 
+      {/* CSS Animations */}
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.2; }
-          50% { transform: translateY(-20px) translateX(10px); opacity: 0.5; }
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.2;
+          }
+          50% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.5;
+          }
         }
-        .gradient-bg { background-size: 200% 200%; }
+
+        .gradient-bg {
+          background-size: 200% 200%;
+        }
       `}</style>
     </div>
   );
