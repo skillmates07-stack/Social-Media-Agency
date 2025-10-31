@@ -25,9 +25,8 @@ server.register(helmet, {
 server.register(cors, {
   origin: [
     'http://localhost:3000',
-    'https://postipilot.netlify.app',
-    /https:\/\/.*--postipilot\.netlify\.app$/,
-    process.env.FRONTEND_URL || 'http://localhost:3000'
+    'https://social-media-agency-web-three.vercel.app',
+    process.env.FRONTEND_URL || 'http://localhost:3000',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -36,7 +35,7 @@ server.register(cors, {
 // JWT
 server.register(jwt, {
   secret: process.env.JWT_SECRET || 'your-secret-key-change-this',
-  sign: { expiresIn: '24h' }
+  sign: { expiresIn: '24h' },
 });
 
 // Health check
