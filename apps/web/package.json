@@ -30,8 +30,7 @@
     "zod": "^3.23.8",
     "zustand": "^5.0.1",
     "react-hook-form": "^7.53.2",
-    "recharts": "^2.10.3",
-    "next-auth": "^5.0.0"
+    "recharts": "^2.10.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
