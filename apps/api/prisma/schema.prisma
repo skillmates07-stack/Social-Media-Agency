@@ -1,139 +1,108 @@
-// This file is for Fastify backend with PostgreSQL
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-// User/Agency
-model Agency {
+// User Model
+model User {
   id        String   @id @default(cuid())
-  name      String
   email     String   @unique
-  password  String   // hashed
-  subdomain String?  @unique
-  
-  // Relations
-  posts           Post[]
-  socialAccounts  SocialAccount[]
-  teamMembers     TeamMember[]
-  
+  password  String
+  name      String?
+  avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  posts            Post[]
+  scheduledPosts   ScheduledPost[]
+  socialAccounts   SocialAccount[]
+  analytics        Analytics[]
+
+  @@map("users")
 }
 
-// Posts
+// Post Model
 model Post {
   id        String   @id @default(cuid())
   title     String
   content   String
-  media     String?  // JSON array of media URLs
-  
-  // Scheduling
-  scheduledAt DateTime?
-  publishedAt DateTime?
-  status    String   @default("draft") // draft, scheduled, published
-  
-  // Platforms
-  platforms String[] // ["facebook", "instagram", "twitter"]
-  
-  // Analytics
-  engagement   Int     @default(0)
-  impressions  Int     @default(0)
-  clicks       Int     @default(0)
-  
-  // Relations
-  agencyId    String
-  agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  socialPosts SocialPost[]
-  
+  status    String   @default("draft") // draft, published, scheduled
+  platforms String[] // twitter, instagram, facebook, linkedin
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@index([agencyId])
-  @@index([scheduledAt])
+  userId    String
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduledPost   ScheduledPost?
+  analytics       Analytics[]
+
+  @@index([userId])
+  @@map("posts")
 }
 
-// Social Media Accounts
+// Scheduled Posts
+model ScheduledPost {
+  id          String   @id @default(cuid())
+  postId      String   @unique
+  scheduledAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+
+  post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, scheduledAt])
+  @@map("scheduled_posts")
+}
+
+// Social Accounts (Connected OAuth)
 model SocialAccount {
-  id        String   @id @default(cuid())
-  platform  String   // "facebook", "instagram", "twitter"
-  username  String
-  email     String?
-  
-  // OAuth tokens
-  accessToken  String
-  refreshToken String?
-  tokenExpiry  DateTime?
-  
-  // Profile info
-  profileUrl   String?
-  profileImage String?
-  followersCount Int @default(0)
-  
-  // Relations
-  agencyId    String
-  agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  socialPosts SocialPost[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([agencyId, platform, username])
-  @@index([agencyId])
+  id                String   @id @default(cuid())
+  platform          String   // twitter, instagram, facebook, linkedin
+  accountId         String
+  accountName       String
+  accessToken       String
+  refreshToken      String?
+  expiresAt         DateTime?
+  profileImageUrl   String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String
+
+  user Analytics[] @relation("SocialAccountAnalytics")
+  owner User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([platform, accountId])
+  @@index([userId])
+  @@map("social_accounts")
 }
 
-// Social Posts (published on platforms)
-model SocialPost {
-  id        String   @id @default(cuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
+// Analytics
+model Analytics {
+  id              String   @id @default(cuid())
+  postId          String
   socialAccountId String
-  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
-  
-  platformPostId String?  // ID from platform
-  platformUrl    String?
-  
-  status    String   @default("pending") // pending, published, failed
-  error     String?  // error message if failed
-  
-  publishedAt DateTime?
-  
-  @@unique([postId, socialAccountId])
-  @@index([postId])
-  @@index([socialAccountId])
-}
+  likes           Int      @default(0)
+  shares          Int      @default(0)
+  comments        Int      @default(0)
+  impressions     Int      @default(0)
+  clicks          Int      @default(0)
+  engagementRate  Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          String
 
-// Team Members
-model TeamMember {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  role      String   @default("member") // owner, admin, member
-  
-  agencyId  String
-  agency    Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([agencyId, email])
-  @@index([agencyId])
-}
+  post           Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  socialAccount  SocialAccount @relation("SocialAccountAnalytics", fields: [socialAccountId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-// Refresh Tokens (for JWT rotation)
-model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  agencyId  String
-  expiresAt DateTime
-  
-  createdAt DateTime @default(now())
-  
-  @@index([agencyId])
+  @@index([postId, socialAccountId])
+  @@index([userId])
+  @@map("analytics")
 }
