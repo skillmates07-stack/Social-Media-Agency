@@ -1,31 +1,29 @@
 {
   "name": "@social-media-saas/api",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "description": "Social Media Agency API",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "ts-node src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "fastify": "^4.25.2",
-    "@fastify/cors": "^8.4.2",
-    "@fastify/jwt": "^7.1.0",
-    "@fastify/helmet": "^11.1.1",
-    "@prisma/client": "^5.7.1",
+    "@prisma/client": "^5.22.0",
+    "fastify": "^4.25.0",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/jwt": "^7.0.0",
+    "@fastify/helmet": "^11.1.0",
     "bcryptjs": "^2.4.3",
-    "dotenv": "^16.3.1",
-    "zod": "^3.23.8"
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
-    "@types/bcryptjs": "^2.4.6",
     "typescript": "^5.3.3",
-    "tsx": "^4.7.0",
-    "prisma": "^5.7.1"
+    "@types/node": "^20.10.0",
+    "@types/bcryptjs": "^2.4.2",
+    "ts-node": "^10.9.2",
+    "prisma": "^5.22.0"
   }
 }
