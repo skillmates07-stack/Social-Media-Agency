@@ -55,7 +55,8 @@ const start = async () => {
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`🚀 Server running on port ${port}`);
   } catch (err: any) {
-    server.log.error(err.message || err);
+    // @ts-ignore
+    console.error(err.message || err);
     process.exit(1);
   }
 };
@@ -63,3 +64,4 @@ const start = async () => {
 start();
 
 export default server;
+
