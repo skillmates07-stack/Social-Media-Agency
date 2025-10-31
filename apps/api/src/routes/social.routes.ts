@@ -1,71 +1,59 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function socialRoutes(fastify: FastifyInstance) {
-  fastify.get(
-    '/accounts',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify();
-        const user = request.user as any;
+export async function socialRoutes(fastify: any) {
+  // Get Connected Accounts
+  fastify.get('/accounts', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const accounts = await prisma.socialAccount.findMany({
+        where: { userId: req.user.id },
+      });
 
-        const accounts = await prisma.socialAccount.findMany({
-          where: { agencyId: user.agencyId },
-        });
-
-        return reply.send(accounts);
-      } catch (error) {
-        return reply.status(401).send({ error: 'Unauthorized' });
-      }
+      return reply.send(accounts);
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: 'Failed to fetch accounts' });
     }
-  );
+  });
 
-  fastify.post(
-    '/connect',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify();
-        const user = request.user as any;
-        const body = request.body as any;
+  // Add Social Account
+  fastify.post('/accounts', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { platform, accountId, accountName, accessToken, refreshToken } = req.body as any;
 
-        const account = await prisma.socialAccount.create({
-          data: {
-            platform: body.provider || 'twitter',
-            username: `${body.provider}_user_${Date.now()}`,
-            accessToken: `mock_token_${Date.now()}`,
-            agencyId: user.agencyId,
-          },
-        });
+      const account = await prisma.socialAccount.create({
+        data: {
+          platform,
+          accountId,
+          accountName,
+          accessToken,
+          refreshToken,
+          userId: req.user.id,
+        },
+      });
 
-        return reply.status(201).send(account);
-      } catch (error: any) {
-        return reply.status(500).send({ error: 'Failed to connect account' });
-      }
+      return reply.send(account);
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: 'Failed to add account' });
     }
-  );
+  });
 
-  fastify.delete(
-    '/accounts/:id',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify();
-        const user = request.user as any;
-        const params = request.params as any;
+  // Delete Social Account
+  fastify.delete('/accounts/:id', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = req.params as any;
 
-        const account = await prisma.socialAccount.findUnique({
-          where: { id: params.id },
-        });
-        if (!account || account.agencyId !== user.agencyId) {
-          return reply.status(404).send({ error: 'Account not found' });
-        }
+      await prisma.socialAccount.deleteMany({
+        where: { id, userId: req.user.id },
+      });
 
-        await prisma.socialAccount.delete({ where: { id: params.id } });
-        return reply.send({ message: 'Account disconnected' });
-      } catch (error) {
-        return reply.status(500).send({ error: 'Failed to disconnect account' });
-      }
+      return reply.send({ success: true });
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: 'Failed to delete account' });
     }
-  );
+  });
 }
