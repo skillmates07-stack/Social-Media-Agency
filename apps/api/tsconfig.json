@@ -6,7 +6,6 @@
     "module": "commonjs",
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
